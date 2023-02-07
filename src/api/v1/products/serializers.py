@@ -69,6 +69,7 @@ class ProductFieldCreateSerializer(serializers.ModelSerializer):
         model = ProductField
         exclude = ('product',)
         
+        
 class ProductCreateSerializer(serializers.ModelSerializer):
     fields = ProductFieldCreateSerializer(many=True)
     class Meta:
@@ -76,4 +77,8 @@ class ProductCreateSerializer(serializers.ModelSerializer):
         exclude = (
             'views_count', 'status', 'is_deleted', 'date_created', 'date_updated', 
         )
+    
+    def create(self, ):
+        pass
+
 # end product create
