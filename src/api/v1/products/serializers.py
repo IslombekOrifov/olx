@@ -7,7 +7,6 @@ class CategoryAdminSerializer(serializers.ModelSerializer):
         model = Category
         fields = '__all__'
         extra_kwargs = {
-            'id': {'read_only': True},
             'creator': {'read_only': True, 'required': False},
         }
 
@@ -24,7 +23,7 @@ class FieldAminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Field
         fields = '__all__'
-        read_only_fields = ['id', 'creator', 'date_created']
+        read_only_fields = ['creator', 'date_created']
         extra_kwargs = {
             'creator': {'required': False}
         }
@@ -79,6 +78,6 @@ class ProductCreateSerializer(serializers.ModelSerializer):
         )
     
     def create(self, validated_data):
-        
+        pass
 
 # end product create

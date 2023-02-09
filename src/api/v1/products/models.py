@@ -12,13 +12,12 @@ class Category(models.Model):
     creator = models.ForeignKey(CustomUser, related_name='categories', blank=True, null=True, on_delete=models.SET_NULL)
 
     name = models.CharField(max_length=200)
-    # slug = models.SlugField(max_length=200, unique=True)
     image = models.ImageField(upload_to=upload_category_path, blank=True, null=True)
 
     is_active = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
 
-    date_created = models.DateField(auto_now_add=True)
+    date_created = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         self.name = ' '.join(self.name.strip().split())
@@ -30,12 +29,12 @@ class Category(models.Model):
 
 class Field(models.Model):
     categories = models.ManyToManyField(Category)
-    creator = models.ForeignKey(CustomUser, related_name='category_fields', blank=True, null=True, on_delete=models.SET_NULL)
+    creator = models.ForeignKey(CustomUser, related_name='category_fields', null=True, on_delete=models.SET_NULL)
 
     name = models.CharField(max_length=150, unique=True)
 
     is_checkbox = models.BooleanField(default=False)
-    date_created = models.DateField(auto_now_add=True)
+    date_created = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
         self.name = ' '.join(self.name.strip().split())
@@ -50,7 +49,6 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
 
     title = models.CharField(max_length=100, validators=[MinLengthValidator(20)])
-    # slug = models.SlugField(max_length=50, unique=True)
     description = models.TextField(max_length=9000, validators=[MinLengthValidator(80)])
     region = models.CharField(max_length=50)
     district = models.CharField(max_length=50)
@@ -72,7 +70,6 @@ class Product(models.Model):
     negotiable = models.BooleanField(default=False) # kelishiladi
 
     # Additional Information
-    # seller_status = models.CharField(max_length=1, choices=CHOICE_SELLER_STATUS, default=CHOICE_SELLER_STATUS[0][0])
     product_condition = models.BooleanField(default=True)
     auto_renewal = models.BooleanField(default=False)
 
@@ -80,7 +77,7 @@ class Product(models.Model):
     email = models.EmailField(max_length=50, blank=True)
     phone = models.CharField(max_length=13, blank=True)
     
-    views_count = models.PositiveSmallIntegerField(default=0, validators=[MinValueValidator(0)])
+    views_count = models.PositiveSmallIntegerField(default=0)
     status = models.CharField(max_length=3, choices=ProductStatus.choices(), default=ProductStatus.wt.name)
     is_deleted = models.BooleanField(default=False)
 
@@ -96,7 +93,7 @@ class Product(models.Model):
 
 
 class ProductField(models.Model):
-    field = models.ForeignKey(Field, on_delete=models.CASCADE)
+    field = models.ForeignKey(Field, on_delete=models.PROTECT)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
     # first choice
