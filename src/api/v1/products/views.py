@@ -75,7 +75,7 @@ class ProductCreateAPIView(generics.CreateAPIView):
     authentication_classes = [authentication.BasicAuthentication]
 
     def perform_create(self, serializer):
-        serializer.save(creator=self.request.user)
+        serializer.save(author=self.request.user)
 
 class ProductClientListAPIView(generics.ListAPIView):
     queryset = Product.objects.filter(status=ProductStatus.ac.name, is_deleted=False)
