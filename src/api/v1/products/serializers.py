@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from products.models import Product, Category, ProductField, Field
+from .models import Product, Category, ProductField, Field
 
 # start categories 
 class CategoryAdminSerializer(serializers.ModelSerializer):

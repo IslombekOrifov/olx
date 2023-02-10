@@ -3,8 +3,12 @@ from rest_framework import (
     permissions,
     authentication
 )
+from rest_framework.response import Response
+from django_filters import rest_framework as filters
+from django.db.models import Q
 
 from api.v1.accounts.permissions import IsDeleted
+from api.v1.tariffs.enums import AdvantageType
 from .models import *
 from .enums import ProductStatus
 from .serializers import (
@@ -36,7 +40,7 @@ class CategoryAdminRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAP
 
 
 class FieldAdminListCreateAPIView(generics.ListCreateAPIView):
-    queryset = Field.objects.all(is_deleted=False)
+    queryset = Field.objects.all()
     serializer_class = FieldAminSerializer
     permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
     authentication_classes = [authentication.BasicAuthentication]
@@ -46,7 +50,7 @@ class FieldAdminListCreateAPIView(generics.ListCreateAPIView):
 
 
 class FieldAdminRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Field.objects.all(is_deleted=False)
+    queryset = Field.objects.all()
     serializer_class = FieldAminSerializer
     permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
     authentication_classes = [authentication.BasicAuthentication]
@@ -57,12 +61,12 @@ class FieldAdminRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIVi
 
 
 class CategoryClientListAPIView(generics.ListAPIView):
-    queryset = CustomUser.objects.filter(is_active=True, is_deleted=False)
+    queryset = CustomUser.objects.filter(is_active=True)
     serializer_class = CategoryClientSerializer
 
 
 class FieldClientListAPIView(generics.ListAPIView):
-    queryset = Field.objects.filter(is_active=True, is_deleted=False)
+    queryset = Field.objects.filter()
     serializer_class = FieldSerializer
     permission_classes = [permissions.IsAuthenticated, ~IsDeleted]
     authentication_classes = [authentication.BasicAuthentication]
@@ -78,6 +82,41 @@ class ProductCreateAPIView(generics.CreateAPIView):
         serializer.save(author=self.request.user)
 
 class ProductClientListAPIView(generics.ListAPIView):
-    queryset = Product.objects.filter(status=ProductStatus.ac.name, is_deleted=False)
     serializer_class = ProductListSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ('category',)
+
+    def get_queryset(self):
+        queryset = Product.objects.filter(
+            status=ProductStatus.ac.name, 
+            is_deleted=False
+        ).order_by('-date_created')
+        return queryset
+
+
+class ProductClientListAPIView(generics.ListAPIView):
+    serializer_class = ProductListSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_fields = ('category',)
+
+    def get_queryset(self):
+        queryset = Product.objects.filter(
+            Q(tariffs__tariff__advantages__advantage_type=AdvantageType.t.name) |
+            Q(tariffs__tariff__advantages__advantage_type=AdvantageType.t.name),
+            status=ProductStatus.ac.name, 
+            is_deleted=False,
+            
+        ).order_by('-date_created')
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        page = request.query_params.get('page', 1)
+        queryset = self.filter_queryset(self.get_queryset())[(page - 1) * 3][:3]
+        
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 

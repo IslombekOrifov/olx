@@ -3,10 +3,14 @@ from rest_framework import (
     permissions,
     authentication
 )
+from rest_framework.response import Response
 
 from .permissions import IsDeleted
 from .models import CustomUser
-from .serializers import StaffRegisterSerializer, ClientRegisterSerializer, UserSerializer
+from .serializers import (
+    StaffRegisterSerializer, ClientRegisterSerializer, UserSerializer,
+    UserLoginSerializer
+)
 
 # Create your views here.
 
@@ -25,6 +29,7 @@ class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.filter(is_deleted=False)
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated, IsDeleted]
+    authentication_classes = (authentication.TokenAuthentication,)
 
     def get_object(self):
         return self.request.user
@@ -32,3 +37,13 @@ class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     def perform_destroy(self, instance):
         instance.is_deleted = True
         instance.save()
+
+
+class UserLoginAPIView(generics.CreateAPIView):
+    serializer_class = UserLoginSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = UserLoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        token = serializer.save()
+        return Response({'token': token}, status=201)

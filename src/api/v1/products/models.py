@@ -32,7 +32,9 @@ class Field(models.Model):
     creator = models.ForeignKey(CustomUser, related_name='category_fields', null=True, on_delete=models.SET_NULL)
 
     name = models.CharField(max_length=150, unique=True)
-
+    
+    is_filter= models.BooleanField(default=False)
+    is_main = models.BooleanField(default=False)
     is_checkbox = models.BooleanField(default=False)
     date_created = models.DateTimeField(auto_now_add=True)
 

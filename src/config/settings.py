@@ -47,9 +47,10 @@ INSTALLED_APPS = [
     'api.v1.wishlist.apps.WishlistConfig',
 
     'rest_framework',
-    
+    'rest_framework.authtoken',
     'languages',
     'multiselectfield',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
