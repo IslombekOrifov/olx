@@ -7,7 +7,7 @@ from multiselectfield import MultiSelectField
 
 from .validators import validate_phone
 from .services import upload_avatar_path, upload_resume_path
-from .enums import Licences, Levels
+from .enums import Licences, Levels, Languages
 from .managers import CustomUserManager
 
 
@@ -41,7 +41,10 @@ class CustomUser(AbstractUser):
     edu2_end_date = models.DateField(blank=True, null=True)
     edu2_now = models.BooleanField(default=False)
     
-    licence_category = MultiSelectField(choices=Licences.choices(), max_choices=3, max_length=3, blank=True)
+    licence_category = MultiSelectField(
+        choices=Licences.choices(), max_choices=3, 
+        max_length=3, blank=True
+    )
     is_deleted = models.BooleanField(default=False)
 
 
@@ -51,13 +54,12 @@ class CustomUser(AbstractUser):
         return self.email
 
 
-class UserLanguage(models.Model):
-    user = models.ForeignKey(CustomUser, related_name='languages', on_delete=models.CASCADE)
-    
-    language = LanguageField(max_length=8)
-    user = models.ForeignKey(CustomUser, related_name='languages', on_delete=models.CASCADE)
+class UserLanguage(models.Model):   
+    language = MultiSelectField(choices=Languages.choices(), max_choices=3, max_length=3)
     level = models.CharField(max_length=3, choices=Levels.choices())
     date_created = models.DateField(auto_now_add=True)
+
+    user = models.ForeignKey(CustomUser, related_name='languages', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.language

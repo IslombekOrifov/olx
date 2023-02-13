@@ -27,3 +27,14 @@ class Levels(Enum):
     def choices(cls):
         return ((_.name, _.value) for _ in cls)
       
+
+class Languages(Enum):
+    ar = 'Arab tili'
+    en = 'Ingliz tili'
+    ru = 'Rus tili'
+    uz = 'O\'zbek tili'
+    
+
+    @classmethod
+    def choices(cls):
+        return ((_.name, _.value) for _ in cls)
