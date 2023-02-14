@@ -1,7 +1,8 @@
 from rest_framework import (
     generics,
     permissions,
-    authentication
+    authentication,
+    status
 )
 from rest_framework.response import Response
 
@@ -24,9 +25,8 @@ class StaffRegisterAPIView(generics.CreateAPIView):
 class ClientRegisterAPIView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = ClientRegisterSerializer
-    # permission_classes = []
 
-
+    
 class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.filter(is_deleted=False)
     serializer_class = UserSerializer

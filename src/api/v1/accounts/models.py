@@ -11,15 +11,12 @@ from .managers import CustomUserManager
 
 
 class CustomUser(AbstractUser):
-    username = None
-    email = models.EmailField(unique=True)
+    email = models.EmailField(blank=True)
     phone = models.CharField(max_length=13, blank=True, validators=[validate_phone])
     balance = models.FloatField(default=0, validators=[MinValueValidator(0.0)])
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['first_name', 'last_name']
+    REQUIRED_FIELDS = []
 
-    objects = CustomUserManager()
 
     about = models.CharField(max_length=255, blank=True)
     birth_date = models.DateField(blank=True, null=True)

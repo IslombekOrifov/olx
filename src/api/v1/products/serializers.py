@@ -1,4 +1,7 @@
 from rest_framework import serializers
+
+from api.v1.accounts.serializers import AuthorSerializer
+
 from .models import Product, Category, ProductField, Field
 
 
@@ -67,6 +70,7 @@ class ProductFieldSerializer(serializers.ModelSerializer):
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     cat_fields = ProductFieldSerializer(many=True)
+    author = AuthorSerializer()
     class Meta:
         model = Product
         fields = ( 
@@ -74,7 +78,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             'exchange', 'negotiable', 'product_condition', 'region', 'district',
             'image_main', 'image1', 'image2', 'image3', 'image4', 'image5',
             'image6', 'image7', 'email', 'phone', 'views_count', 'date_created',
-            'cat_fields'
+            'cat_fields', 'author'
         )
 
 
@@ -89,7 +93,8 @@ class ProductCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         exclude = (
-            'views_count', 'status', 'is_deleted', 'date_created', 'date_updated', 
+            'views_count', 'status', 'is_deleted', 
+            'date_created', 'date_updated',
         )
 
 # end client serializers

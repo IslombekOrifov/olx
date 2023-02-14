@@ -107,7 +107,7 @@ class ProductListAPIView(generics.ListAPIView):
     def get_queryset(self):
         queryset = Product.objects.filter(
             status=ProductStatus.ac.name, is_deleted=False
-        ).annotate(year=F()).order_by('-date_created')
+        ).order_by('-date_created')
         return queryset
 
 
