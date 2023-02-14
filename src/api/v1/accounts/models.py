@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
 
-from languages.fields import LanguageField
 from multiselectfield import MultiSelectField
 
 from .validators import validate_phone

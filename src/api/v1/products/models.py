@@ -33,7 +33,7 @@ class Field(models.Model):
 
     name = models.CharField(max_length=150, unique=True)
     
-    is_filter= models.BooleanField(default=False)
+    is_filter = models.BooleanField(default=False)
     is_main = models.BooleanField(default=False)
     is_checkbox = models.BooleanField(default=False)
     date_created = models.DateTimeField(auto_now_add=True)
@@ -96,7 +96,7 @@ class Product(models.Model):
 
 class ProductField(models.Model):
     field = models.ForeignKey(Field, on_delete=models.PROTECT)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='cat_fields', on_delete=models.CASCADE)
 
     # first choice
     text = models.CharField(max_length=255, blank=True)

@@ -1,3 +1,10 @@
-from django.shortcuts import render
+from rest_framework import (
+    views,
+    generics,
+    permissions,
+    authentication
+)
 
-# Create your views here.
+
+class WishlistAddApiView(generics.CreateAPIView):
+    

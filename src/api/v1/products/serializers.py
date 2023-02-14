@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from .models import Product, Category, ProductField, Field
 
-# start categories 
+
+# start admin serializers
 class CategoryAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -10,15 +11,6 @@ class CategoryAdminSerializer(serializers.ModelSerializer):
             'creator': {'read_only': True, 'required': False},
         }
 
-
-class CategoryClientSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ('id', 'name', 'image', 'parent')
-# end categories 
-
-
-# start Field
 class FieldAminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Field
@@ -27,16 +19,37 @@ class FieldAminSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'creator': {'required': False}
         }
+# end admin serializers
+
+
+# start client serializers
+class CategoryChildsChildrenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('id', 'name', 'category_set')
+
+
+class CategoryChildrenSerializer(serializers.ModelSerializer):
+    category_set = CategoryChildsChildrenSerializer(many=True)
+    class Meta:
+        model = Category
+        fields = ('id', 'name', 'category_set')
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    category_set = CategoryChildrenSerializer(many=True)
+    class Meta:
+        model = Category
+        fields = ('id', 'name', 'image', 'category_set')
+
 
 class FieldSerializer(serializers.ModelSerializer):
     class Meta:
         model = Field
         fields = ['id', 'name', 'is_checkbox']
-# end Field 
 
 
-# start product list and detail
-class ProductListSerializer(serializers.Serializer):
+class ProductListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = (
@@ -49,20 +62,22 @@ class ProductFieldSerializer(serializers.ModelSerializer):
     field = serializers.CharField(source="field.name")
     class Meta:
         model = ProductField
-        exclude = ('product',)
+        fields = ('field', 'text', 'is_true')
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
-    fields = ProductFieldSerializer()
+    cat_fields = ProductFieldSerializer(many=True)
     class Meta:
         model = Product
-        exclude = (
-            'auto_renewal', 'status', 'is_deleted', 'date_updated', 
+        fields = ( 
+            'title', 'description', 'category', 'price', 'price_is_dollar', 
+            'exchange', 'negotiable', 'product_condition', 'region', 'district',
+            'image_main', 'image1', 'image2', 'image3', 'image4', 'image5',
+            'image6', 'image7', 'email', 'phone', 'views_count', 'date_created',
+            'cat_fields'
         )
-# end product list and detail
 
 
-# sart product create
 class ProductFieldCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductField
@@ -76,8 +91,5 @@ class ProductCreateSerializer(serializers.ModelSerializer):
         exclude = (
             'views_count', 'status', 'is_deleted', 'date_created', 'date_updated', 
         )
-    
-    def create(self, validated_data):
-        pass
 
-# end product create
+# end client serializers

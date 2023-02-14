@@ -1,6 +1,6 @@
 from rest_framework import serializers, exceptions
 from django.shortcuts import get_object_or_404
-from django.shortcuts import get_object_or_create
+
 
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
@@ -53,4 +53,4 @@ class UserLoginSerializer(serializers.Serializer):
 
     
     def save(self, *args, **kwargs):
-        return Token.objects.get_or_create(user_id=self.user.id).key
+        return Token.objects.get_object_or_create(user_id=self.user.id).key

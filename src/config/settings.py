@@ -33,8 +33,8 @@ INSTALLED_APPS = [
     'api.v1.wishlist.apps.WishlistConfig',
 
     'rest_framework',
-    'rest_framework.authtoken',
-    'languages',
+    'rest_framework_simplejwt',
+    
     'multiselectfield',
     'django_filters',
 ]
@@ -125,3 +125,14 @@ STATIC_URL = '/static/'
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+REST_FRAMEWORK = {
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+}

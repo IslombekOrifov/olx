@@ -20,16 +20,18 @@ class StaffRegisterAPIView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [authentication.BasicAuthentication]
 
+
 class ClientRegisterAPIView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = ClientRegisterSerializer
     # permission_classes = []
 
+
 class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = CustomUser.objects.filter(is_deleted=False)
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated, IsDeleted]
-    authentication_classes = (authentication.TokenAuthentication,)
+
 
     def get_object(self):
         return self.request.user
@@ -47,3 +49,5 @@ class UserLoginAPIView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         token = serializer.save()
         return Response({'token': token}, status=201)
+
+

@@ -4,6 +4,11 @@ from .views import *
 
 
 urlpatterns = [
-    path('top/', ProductClientListAPIView.as_view()),
-    path('', ProductClientListAPIView.as_view()),
+    path('top/', ProductTopListAPIView.as_view()),
+    path('detail/<int:pk>', ProductRetriveAPIView.as_view()),
+
+    path('category/', CategoryListAPIView.as_view()),
+    path('fields/<int:category_id>/', FieldListAPIView.as_view()),
+
+    path('', ProductListAPIView.as_view()),
 ]
