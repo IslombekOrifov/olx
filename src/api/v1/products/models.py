@@ -8,7 +8,7 @@ from .enums import ProductStatus
 
 
 class Category(models.Model):
-    parent = models.ForeignKey('self', blank=True, null=True, on_delete=models.CASCADE)
+    parent = models.ForeignKey('self', blank=True, related_name='children', null=True, on_delete=models.CASCADE)
     creator = models.ForeignKey(CustomUser, related_name='categories', blank=True, null=True, on_delete=models.SET_NULL)
 
     name = models.CharField(max_length=200)

@@ -29,21 +29,21 @@ class FieldAminSerializer(serializers.ModelSerializer):
 class CategoryChildsChildrenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ('id', 'name', 'category_set')
+        fields = ('id', 'name')
 
 
 class CategoryChildrenSerializer(serializers.ModelSerializer):
-    category_set = CategoryChildsChildrenSerializer(many=True)
+    children = CategoryChildsChildrenSerializer(many=True)
     class Meta:
         model = Category
-        fields = ('id', 'name', 'category_set')
+        fields = ('id', 'name', 'children')
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    category_set = CategoryChildrenSerializer(many=True)
+    children = CategoryChildrenSerializer(many=True)
     class Meta:
         model = Category
-        fields = ('id', 'name', 'image', 'category_set')
+        fields = ('id', 'name', 'image', 'children')
 
 
 class FieldSerializer(serializers.ModelSerializer):
@@ -62,7 +62,7 @@ class ProductListSerializer(serializers.ModelSerializer):
 
 
 class ProductFieldSerializer(serializers.ModelSerializer):
-    field = serializers.CharField(source="field.name")
+    field = serializers.StringRelatedField(source="field.name")
     class Meta:
         model = ProductField
         fields = ('field', 'text', 'is_true')

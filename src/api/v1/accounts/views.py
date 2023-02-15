@@ -9,8 +9,7 @@ from rest_framework.response import Response
 from .permissions import IsDeleted
 from .models import CustomUser
 from .serializers import (
-    StaffRegisterSerializer, ClientRegisterSerializer, UserSerializer,
-    UserLoginSerializer
+    StaffRegisterSerializer, ClientRegisterSerializer, UserSerializer
 )
 
 # Create your views here.
@@ -19,7 +18,9 @@ class StaffRegisterAPIView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = StaffRegisterSerializer
     permission_classes = [permissions.IsAuthenticated]
-    authentication_classes = [authentication.BasicAuthentication]
+
+    def perform_create(self, serializer):
+        serializer.save(is_staff=True)
 
 
 class ClientRegisterAPIView(generics.CreateAPIView):
@@ -32,7 +33,6 @@ class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated, IsDeleted]
 
-
     def get_object(self):
         return self.request.user
     
@@ -40,14 +40,5 @@ class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
         instance.is_deleted = True
         instance.save()
 
-
-class UserLoginAPIView(generics.CreateAPIView):
-    serializer_class = UserLoginSerializer
-
-    def create(self, request, *args, **kwargs):
-        serializer = UserLoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        token = serializer.save()
-        return Response({'token': token}, status=201)
 
 

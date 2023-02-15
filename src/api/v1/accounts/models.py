@@ -47,7 +47,7 @@ class CustomUser(AbstractUser):
     def __str__(self):
         if self.get_full_name():
             return f"{self.get_full_name()}"
-        return self.email
+        return f'{self.email} > {self.username}'
 
 
 class UserLanguage(models.Model):   

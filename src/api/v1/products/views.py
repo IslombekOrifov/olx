@@ -94,9 +94,15 @@ class ProductCreateAPIView(generics.CreateAPIView):
 class CategoryListAPIView(generics.ListAPIView):
     queryset = Category.objects.filter(
         is_active=True, is_deleted=False, parent__isnull=True
-    ).prefetch_related('category_set', 'category_set__category_set')
+    ).prefetch_related('children', 'children__children')
     serializer_class = CategorySerializer
 
+class CategoryDestroyAPIView(generics.DestroyAPIView):
+    queryset = Category.objects.filter(parent__isnull=False)
+    serializer_class = CategorySerializer
+    def perform_destroy(self, instance):
+        instance = Category.objects.filter(parent__isnull=False)
+        instance.delete()
 
 
 class ProductListAPIView(generics.ListAPIView):
@@ -106,9 +112,20 @@ class ProductListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = Product.objects.filter(
-            status=ProductStatus.ac.name, is_deleted=False
+            status=ProductStatus.wt.name, is_deleted=False
         ).order_by('-date_created')
         return queryset
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class ProductTopListAPIView(generics.ListAPIView):
@@ -119,7 +136,7 @@ class ProductTopListAPIView(generics.ListAPIView):
     def get_queryset(self):
         queryset = Product.objects.filter(
             Q(tariffs__tariff__advantages__advantage_type=AdvantageType.t.name) |
-            Q(tariffs__tariff__advantages__advantage_type=AdvantageType.t.name),
+            Q(tariffs__advantages__advantage_type=AdvantageType.t.name),
             status=ProductStatus.ac.name, 
             is_deleted=False,
             
@@ -127,6 +144,8 @@ class ProductTopListAPIView(generics.ListAPIView):
         return queryset
 
     def list(self, request, *args, **kwargs):
+        if not self.get_queryset():
+            return Response('no')
         page = request.query_params.get('page', 1)
         queryset = self.filter_queryset(self.get_queryset())[(page - 1) * 3][:3]
         
