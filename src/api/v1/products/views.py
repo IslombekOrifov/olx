@@ -175,7 +175,7 @@ class ProductRetriveAPIView(generics.RetrieveAPIView):
 
         obj = Product.objects.filter(
             is_deleted=False, **filter_kwargs
-        ).prefetch_related('cat_fields', 'cat_fields__field').select_related('author').get()
+        ).prefetch_related('cat_fields').select_related('author').get()
         if not obj:
             raise Http404('No matches the given query.')
         

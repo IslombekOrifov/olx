@@ -8,65 +8,35 @@ from rest_framework import serializers, exceptions
 from rest_framework.authtoken.models import Token
 
 from .models import CustomUser
-from .validators import validate_phone
+from .validators import validate_phone_and_email
 
 
-class StaffRegisterSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = CustomUser
-        fields = ['phone_number', 'email', 'password']
+class RegisterSerializer(serializers.Serializer):
+    username = serializers.CharField(validators=[validate_phone_and_email])
+    password = serializers.CharField(write_only=True)
+    is_staff = serializers.BooleanField(default=False)
     
     def validate(self, attrs):
-        try:
-            validate_email(attrs['username'])
-            attrs['email'] = attrs['username']
-        except:
-            try:
-                validate_phone(attrs['username'])
-                attrs['phone'] = attrs['username']
-            except:
-                raise ValidationError('Enter valid email or phone number')
+        is_staff = attrs['is_staff']
+        if is_staff:
+            user = self.context['request'].user
+            if not user.is_authenticated:
+                raise exceptions.NotAuthenticated()
+            if not user.is_staff:
+                raise exceptions.PermissionDenied()
+            
+        username = attrs['username']
+        if '@' in username:
+            attrs['email'] = username
+        else:
+            attrs['phone'] = username
+        
         return attrs
 
     def create(self, validated_data):
-        user = CustomUser.objects.filter(
-            Q(username=validated_data['username']) | Q(email=validated_data['username']) |
-            Q(phone=validated_data['username']) 
-            ).exists()
-        if user:
-            raise exceptions.ValidationError('This user already created')
         instance = CustomUser.objects.create_user(**validated_data)
         return instance
     
-
-class ClientRegisterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ['username', 'password']
-        extra_kwargs = {
-            'password': {'write_only': True},
-        }
-
-    def validate(self, attrs):
-        try:
-            validate_email(attrs['username'])
-            attrs['email'] = attrs['username']
-        except:
-            try:
-                validate_phone(attrs['username'])
-                attrs['phone'] = attrs['username']
-            except:
-                raise ValidationError('Enter valid email or phone number')
-        return attrs
-
-
-    def create(self, validated_data):
-        user = CustomUser.objects.filter(**validated_data).exists()
-        if user:
-            raise ValidationError('This user already created')
-        instance = CustomUser.objects.create_user(**validated_data)
-        return instance
 
 
 class UserSerializer(serializers.ModelSerializer):
