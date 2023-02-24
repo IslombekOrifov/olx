@@ -17,7 +17,6 @@ class CustomUser(AbstractUser):
 
     REQUIRED_FIELDS = []
 
-
     about = models.CharField(max_length=255, blank=True)
     birth_date = models.DateField(blank=True, null=True)
     avatar = models.ImageField(upload_to=upload_avatar_path, blank=True, null=True)
@@ -51,7 +50,7 @@ class CustomUser(AbstractUser):
 
 
 class UserLanguage(models.Model):   
-    language = MultiSelectField(choices=Languages.choices(), max_choices=3, max_length=3)
+    language = models.CharField(max_length=3, choices=Languages.choices())
     level = models.CharField(max_length=3, choices=Levels.choices())
     date_created = models.DateField(auto_now_add=True)
 

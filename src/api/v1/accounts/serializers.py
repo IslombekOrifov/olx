@@ -7,7 +7,7 @@ from django.db.models import Q
 from rest_framework import serializers, exceptions
 from rest_framework.authtoken.models import Token
 
-from .models import CustomUser
+from .models import CustomUser, UserLanguage, Experience
 from .validators import validate_phone_and_email
 
 
@@ -38,15 +38,39 @@ class RegisterSerializer(serializers.Serializer):
         return instance
     
 
+class UserLanguageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserLanguage
+        fields = ['language', 'level']
+
+
+class UserExperienceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Experience
+        exclude = ['user', 'date_created']
+
 
 class UserSerializer(serializers.ModelSerializer):
+    languages = UserLanguageSerializer(many=True, required=False)
+    experiences = UserExperienceSerializer(many=True, required=False)
     date_joined = serializers.DateTimeField(format='%Y-%m-%d %H:%M', read_only=True)
     class Meta:
         model = CustomUser
-        exclude = ['is_active', 'is_deleted', 'is_staff', 'password']
-
+        fields = (
+            'username', 'first_name', 'last_name', 'email', 'phone', 'balance',
+            'date_joined', 'about', 'birth_date', 'avatar', 'other_skills', 'hobby',
+            'resume', 'edu1_name', 'edu1_direction', 'edu1_start_date', 'edu1_end_date',
+            'edu1_now', 'edu2_name', 'edu2_direction', 'edu2_start_date', 'edu2_end_date',
+            'edu2_now', 'licence_category', 'languages', 'experiences'
+        )
+        read_only_fields = ('languages', 'experiences')
+        
 
 class AuthorSerializer(serializers.ModelSerializer):
+     
     class Meta:
         model = CustomUser
-        fields = ('id', 'username', 'avatar')
+        fields = ('id', 'username', 'first_name' 'email', 'phone' 'avatar')
+
+
+
