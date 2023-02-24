@@ -68,3 +68,8 @@ class UserExperienceAPIViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         instance.delete()
+
+
+class ProfileRetrieveAPIView(generics.RetrieveAPIView):
+    queryset = CustomUser.objects.filter(is_active=True, is_deleted=False)
+    serializer_class = AuthorSerializer
