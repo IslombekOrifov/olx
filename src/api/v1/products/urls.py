@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import *
+from .routers import router
 
 
 urlpatterns = [
@@ -13,3 +14,5 @@ urlpatterns = [
 
     path('', ProductListAPIView.as_view()),
 ]
+
+urlpatterns += router.urls

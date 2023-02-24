@@ -5,6 +5,7 @@ from api.v1.accounts.serializers import AuthorSerializer
 from .models import Product, Category, ProductField, Field
 
 
+
 # start admin serializers
 class CategoryAdminSerializer(serializers.ModelSerializer):
     class Meta:

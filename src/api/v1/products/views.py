@@ -1,17 +1,21 @@
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.http import Http404
-from rest_framework import (
-    generics,
-    permissions,
-    authentication
-)
-from rest_framework.response import Response
 from django_filters import rest_framework as filters
 from django.db.models import Q, F
 from django.db.models.functions import JSONObject
 
+from rest_framework import (
+    generics,
+    permissions,
+    viewsets,
+    authentication,
+)
+from rest_framework.response import Response
+
+
 from api.v1.accounts.permissions import IsDeleted
 from api.v1.tariffs.enums import AdvantageType
+
 from .models import *
 from .enums import ProductStatus
 from .serializers import (
@@ -22,38 +26,25 @@ from .serializers import (
 
 
 # start admin views
-class CategorAdminListCreateAPIView(generics.ListCreateAPIView):
+class CategoryAdminViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategoryAdminSerializer
     permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
 
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)
-
-
-class CategoryAdminRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Category.objects.all()
-    serializer_class = CategoryAdminSerializer
-    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
 
     def perform_destroy(self, instance):
         instance.is_deleted = True
         instance.save()
 
-
-class FieldAdminListCreateAPIView(generics.ListCreateAPIView):
+class FieldAdminViewSet(viewsets.ModelViewSet):
     queryset = Field.objects.all()
     serializer_class = FieldAminSerializer
     permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
 
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)
-
-
-class FieldAdminRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Field.objects.all()
-    serializer_class = FieldAminSerializer
-    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
 
     def perform_destroy(self, instance):
         instance.is_deleted = True
@@ -97,13 +88,6 @@ class CategoryListAPIView(generics.ListAPIView):
     ).prefetch_related('children', 'children__children')
     serializer_class = CategorySerializer
 
-class CategoryDestroyAPIView(generics.DestroyAPIView):
-    queryset = Category.objects.filter(parent__isnull=False)
-    serializer_class = CategorySerializer
-    def perform_destroy(self, instance):
-        instance = Category.objects.filter(parent__isnull=False)
-        instance.delete()
-
 
 class ProductListAPIView(generics.ListAPIView):
     serializer_class = ProductListSerializer
@@ -139,7 +123,6 @@ class ProductTopListAPIView(generics.ListAPIView):
             Q(tariffs__advantages__advantage_type=AdvantageType.t.name),
             status=ProductStatus.ac.name, 
             is_deleted=False,
-            
         ).order_by('-date_created')
         return queryset
 
@@ -161,7 +144,6 @@ class ProductRetriveAPIView(generics.RetrieveAPIView):
     serializer_class = ProductDetailSerializer
 
     def get_object(self):
-        
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
 
         assert lookup_url_kwarg in self.kwargs, (
@@ -178,10 +160,6 @@ class ProductRetriveAPIView(generics.RetrieveAPIView):
         ).prefetch_related('cat_fields').select_related('author').get()
         if not obj:
             raise Http404('No matches the given query.')
-        
-        # May raise a permission denied
-        self.check_object_permissions(self.request, obj)
-        
         return obj
 
 

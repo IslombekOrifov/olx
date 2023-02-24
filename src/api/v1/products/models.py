@@ -29,7 +29,10 @@ class Category(models.Model):
 
 class Field(models.Model):
     categories = models.ManyToManyField(Category)
-    creator = models.ForeignKey(CustomUser, related_name='category_fields', null=True, on_delete=models.SET_NULL)
+    creator = models.ForeignKey(
+        CustomUser, related_name='category_fields', 
+        null=True, on_delete=models.SET_NULL
+    )
 
     name = models.CharField(max_length=150, unique=True)
     
