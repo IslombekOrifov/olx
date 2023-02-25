@@ -38,6 +38,7 @@ class CategoryAdminViewSet(viewsets.ModelViewSet):
         instance.is_deleted = True
         instance.save()
 
+
 class FieldAdminViewSet(viewsets.ModelViewSet):
     queryset = Field.objects.all()
     serializer_class = FieldAminSerializer
