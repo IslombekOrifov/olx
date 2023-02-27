@@ -53,12 +53,18 @@ class FieldAdminViewSet(viewsets.ModelViewSet):
 # end products admin
 
 # product client
-# start product create 
+class CategoryListAPIView(generics.ListAPIView):
+    queryset = Category.objects.filter(
+        is_active=True, is_deleted=False, parent__isnull=True
+    ).prefetch_related('children', 'children__children')
+    serializer_class = CategorySerializer
+
+
 class FieldListAPIView(generics.ListAPIView):
     queryset = Field.objects.all()
     serializer_class = FieldSerializer
     # permission_classes = [permissions.IsAuthenticated, ~IsDeleted]
-    lookup_field = 'category_id'
+    lookup_field = 'pk'
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -71,6 +77,8 @@ class FieldListAPIView(generics.ListAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+# start product create 
+
 
 
 class ProductCreateAPIView(generics.CreateAPIView):
@@ -83,11 +91,7 @@ class ProductCreateAPIView(generics.CreateAPIView):
 # end product create
 
 
-class CategoryListAPIView(generics.ListAPIView):
-    queryset = Category.objects.filter(
-        is_active=True, is_deleted=False, parent__isnull=True
-    ).prefetch_related('children', 'children__children')
-    serializer_class = CategorySerializer
+
 
 
 class ProductListAPIView(generics.ListAPIView):

@@ -53,6 +53,32 @@ class FieldSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'is_checkbox']
 
 
+class ProductFieldCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductField
+        exclude = ('product',)
+        
+
+class ProductCreateSerializer(serializers.ModelSerializer):
+    cat_fields = ProductFieldCreateSerializer(many=True)
+    class Meta:
+        model = Product
+        fields = ( 
+            'title', 'description', 'category', 'region', 'district',
+            'image_main', 'image1', 'image2', 'image3', 'image4', 
+            'image5', 'image6', 'image7', 'price', 'price_is_dollar',
+            'exchange', 'negotiable', 'product_condition', 'auto_renewal',
+            'email', 'phone', 'cat_fields', 'author'
+        )
+
+    def create(self, validated_data):
+        cat_fields = validated_data.pop('cat_fields')
+        product = Product.objects.create(**validated_data)
+        if cat_fields:
+            fields_gen = list((ProductField(**field) for field in cat_fields))
+            ProductField.objects.bulk_create(fields_gen)
+        return product
+
 class ProductListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
@@ -83,19 +109,6 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         )
 
 
-class ProductFieldCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductField
-        exclude = ('product',)
-        
 
-class ProductCreateSerializer(serializers.ModelSerializer):
-    fields = ProductFieldCreateSerializer(many=True)
-    class Meta:
-        model = Product
-        exclude = (
-            'views_count', 'status', 'is_deleted', 
-            'date_created', 'date_updated',
-        )
 
 # end client serializers
