@@ -70,14 +70,17 @@ class ProductCreateSerializer(serializers.ModelSerializer):
             'exchange', 'negotiable', 'product_condition', 'auto_renewal',
             'email', 'phone', 'cat_fields', 'author'
         )
+        read_only_fields = ('author',)
 
     def create(self, validated_data):
         cat_fields = validated_data.pop('cat_fields')
         product = Product.objects.create(**validated_data)
         if cat_fields:
-            fields_gen = list((ProductField(**field) for field in cat_fields))
+            fields_gen = list((ProductField(product=product, **field) for field in cat_fields))
             ProductField.objects.bulk_create(fields_gen)
         return product
+
+
 
 class ProductListSerializer(serializers.ModelSerializer):
     class Meta:
