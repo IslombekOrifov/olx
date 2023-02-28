@@ -9,9 +9,13 @@ urlpatterns = [
     path('detail/<int:pk>/', ProductRetriveAPIView.as_view()),
 
     path('category/', CategoryListAPIView.as_view()),
-    path('fields/<int:category_id>/', FieldListAPIView.as_view()),
+    path('fields/category/<int:pk>/', FieldListAPIView.as_view()),
+
+    path('detail/<int:pk>/', ProductRetriveAPIView.as_view()),
+    path('create/', ProductCreateAPIView.as_view()),
 
     path('', ProductListAPIView.as_view()),
+
 ]
 
 urlpatterns += router.urls
