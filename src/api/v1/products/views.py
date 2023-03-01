@@ -1,16 +1,18 @@
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.http import Http404
-from django_filters import rest_framework as filters
 from django.db.models import Q, F
 from django.db.models.functions import JSONObject
 
 from rest_framework import (
+    views,
     generics,
     permissions,
     viewsets,
     authentication,
+    status
 )
 from rest_framework.response import Response
+from django_filters import rest_framework as filters
 
 
 from api.v1.accounts.permissions import IsDeleted
@@ -21,7 +23,7 @@ from .enums import ProductStatus
 from .serializers import (
     CategoryAdminSerializer, CategorySerializer, FieldAminSerializer,
     FieldSerializer, ProductListSerializer, ProductFieldSerializer, 
-    ProductDetailSerializer, ProductFieldCreateSerializer, ProductCreateSerializer
+    ProductDetailSerializer, ProductFieldCreateSerializer, ProductCreateUpdateSerializer
 )
 
 
@@ -77,21 +79,15 @@ class FieldListAPIView(generics.ListAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-# start product create 
-
 
 
 class ProductCreateAPIView(generics.CreateAPIView):
     queryset = Product.objects.filter(status=ProductStatus.ac.name, is_deleted=False)
-    serializer_class = ProductCreateSerializer
+    serializer_class = ProductCreateUpdateSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-# end product create
-
-
-
 
 
 class ProductListAPIView(generics.ListAPIView):
@@ -121,6 +117,7 @@ class ProductTopListAPIView(generics.ListAPIView):
     serializer_class = ProductListSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_fields = ('category',)
+
 
     def get_queryset(self):
         queryset = Product.objects.filter(
@@ -168,12 +165,10 @@ class ProductRetriveAPIView(generics.RetrieveAPIView):
         return obj
 
 
-class ProductUpdateAPIView(generics.RetrieveAPIView):
-    serializer_class = ProductDetailSerializer
+class ProductUpdateAPIView(generics.UpdateAPIView):
+    serializer_class = ProductCreateUpdateSerializer
 
     def get_object(self):
-        
-        # queryset = 
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
 
         assert lookup_url_kwarg in self.kwargs, (
@@ -185,7 +180,7 @@ class ProductUpdateAPIView(generics.RetrieveAPIView):
 
         filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
 
-        obj = Product.objects.filter(is_deleted=False, **filter_kwargs).prefetch_related('fields').get()
+        obj = Product.objects.filter(is_deleted=False, **filter_kwargs).prefetch_related('cat_fields').get()
         if not obj:
             raise Http404('No matches the given query.')
         
@@ -194,5 +189,15 @@ class ProductUpdateAPIView(generics.RetrieveAPIView):
         
         return obj
 
+    def perform_update(self, serializer):
+        serializer.save(author=self.request.user)
+
+
+class ProductDestroyAPIView(generics.DestroyAPIView):
+    queryset = Product.objects.filter(is_deleted=False)
+
+    def perform_destroy(self, instance):
+        instance.is_deleted = True
+        instance.save()
 
 # end products client
