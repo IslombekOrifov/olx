@@ -68,9 +68,9 @@ class ProductFieldCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductField
         fields = ('id', 'field', 'product', 'text', 'is_true')
-    extra_kwargs = {
-        'id': {'required': False}
-    }
+        extra_kwargs = {
+            'id': {'required': False}
+        }
     
     def update(self, instance, validated_data, product_id=None, field_id=None):
         serializers.raise_errors_on_nested_writes('update', self, validated_data)
