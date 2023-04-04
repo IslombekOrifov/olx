@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
+from django.utils.translation import gettext_lazy as _
 
 from multiselectfield import MultiSelectField
 
@@ -11,10 +12,21 @@ from .managers import CustomUserManager
 
 
 class CustomUser(AbstractUser):
-    email = models.EmailField(blank=True)
-    phone = models.CharField(max_length=13, blank=True, validators=[validate_phone])
+    username = models.CharField(
+        _("username"),
+        max_length=12,
+        unique=True,
+        db_index=True,
+        error_messages={
+            "unique": _("A user with that username already exists."),
+        },
+    )
+    phone = models.CharField(
+        max_length=13, blank=True, 
+        validators=[validate_phone], 
+        db_index=True
+    )
     balance = models.FloatField(default=0, validators=[MinValueValidator(0.0)])
-
     REQUIRED_FIELDS = []
 
     about = models.CharField(max_length=255, blank=True)
@@ -47,6 +59,16 @@ class CustomUser(AbstractUser):
         if self.get_full_name():
             return f"{self.get_full_name()}"
         return f'{self.email} > {self.username}'
+
+
+    def save(self, *args, **kwargs):
+        self.edu1_name = ' '.join(self.edu1_name.strip().split())
+        self.edu2_name = ' '.join(self.edu2_name.strip().split())
+        self.about = ' '.join(self.about.strip().split())
+        self.other_skills = ' '.join(self.other_skills.strip().split())
+        self.hobby = ' '.join(self.hobby.strip().split())
+        self.edu1_direction = ' '.join(self.edu1_direction.strip().split())
+        return super().save(*args, **kwargs)
 
 
 class UserLanguage(models.Model):   

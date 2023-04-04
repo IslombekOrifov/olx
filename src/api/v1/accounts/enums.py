@@ -18,10 +18,10 @@ class Licences(Enum):
 
 
 class Levels(Enum):
-    il = 'Ilg\'or'
-    bo = 'Boshlang\'ich'
-    er = 'Erkin'
-    oa = 'O\'rta'
+    il = 'B2'
+    bo = 'Beginner'
+    er = 'Native'
+    oa = 'B1'
 
     @classmethod
     def choices(cls):
@@ -29,10 +29,10 @@ class Levels(Enum):
       
 
 class Languages(Enum):
-    ar = 'Arab tili'
-    en = 'Ingliz tili'
-    ru = 'Rus tili'
-    uz = 'O\'zbek tili'
+    ar = 'Arabic'
+    en = 'English'
+    ru = 'Russian'
+    uz = 'Uzbek'
     
 
     @classmethod

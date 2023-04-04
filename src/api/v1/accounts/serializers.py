@@ -3,8 +3,9 @@ from django.contrib.auth import authenticate
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+from uuid import uuid4
 
-from rest_framework import serializers, exceptions
+from rest_framework import serializers, exceptions, validators
 from rest_framework.authtoken.models import Token
 
 from .models import CustomUser, UserLanguage, Experience
@@ -30,7 +31,7 @@ class RegisterSerializer(serializers.Serializer):
             attrs['email'] = username
         else:
             attrs['phone'] = username
-        
+        attrs['username'] = str(uuid4())[-12:]
         return attrs
 
     def create(self, validated_data):
@@ -48,6 +49,12 @@ class UserExperienceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Experience
         exclude = ['user', 'date_created']
+
+    def validate(self, attrs):
+        if attrs['work_end_date'] and attrs['work_now']:
+            return exceptions.ValidationError("You can't enter both of\
+                                               'work end time' and 'work now' fields")
+        return attrs  
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -69,7 +76,26 @@ class UserSerializer(serializers.ModelSerializer):
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ('id', 'username', 'first_name', 'email', 'phone', 'avatar')
+        fields = ('username', 'first_name', 'email', 'phone', 'avatar')
 
 
+# only for admin serializers
+class UserAdminListSerializer(serializers.ModelSerializer):
+    date_joined = serializers.DateTimeField(format='%Y-%m-%d %H:%M', read_only=True)
+    url = serializers.HyperlinkedIdentityField(
+        lookup_field='username',
+        view_name='adminuser-detail',
+        read_only=True,
+    )
+    class Meta:
+        model = CustomUser
+        fields = (
+            'username', 'email', 'phone', 'date_joined', 'url'
+        )
 
+
+class UserAdminUpdateASerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ('is_active', 'is_deleted')
+      
