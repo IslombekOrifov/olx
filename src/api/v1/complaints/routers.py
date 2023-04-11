@@ -7,4 +7,4 @@ from .views import (
 router = routers.SimpleRouter()
 
 router.register('base/complaint/admin', MainComplaintViewset)
-router.register('users/complaint/', ComplaintViewset)
+router.register('users/complaint', ComplaintViewset)

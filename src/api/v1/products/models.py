@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinLengthValidator, MinValueValidator
+from django.utils.translation import gettext_lazy as _
 
 
 from api.v1.accounts.models import CustomUser
@@ -52,6 +53,14 @@ class Field(models.Model):
 class Product(models.Model):
     author = models.ForeignKey(CustomUser, related_name='products', on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
+
+    custom_id = models.CharField(
+        max_length=12,
+        db_index=True,
+        error_messages={
+            "unique": _("A product with that custom_id already exists."),
+        },
+    )   # add unique=True,
 
     title = models.CharField(max_length=100, validators=[MinLengthValidator(20)])
     description = models.TextField(max_length=9000, validators=[MinLengthValidator(80)])

@@ -2,16 +2,18 @@ from django.shortcuts import render
 
 from rest_framework import (
     viewsets,
-    response
+    response,
+    permissions
 )
 from django_filters import rest_framework as filters
 
 from .models import Message
-from .serializers import ChatSerializer
+from .serializers import MessageSerializer
 
-class ChatAPIViewSet(viewsets.ModelViewSet):
+class MessageAPIViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all(is_deleted = False)
-    serializer_class = ChatSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = MessageSerializer
     filter_backends = (filters.DjangoFilterBackend)
     filterset_fields = ('product',)
 
@@ -25,3 +27,6 @@ class ChatAPIViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

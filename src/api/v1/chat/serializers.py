@@ -1,11 +1,11 @@
 from rest_framework import serializers
 
-from .models import Chat, ChatMessage
+from .models import Message
 
 
-class ChatSerializer(serializers.ModelSerializer):
+class MessageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Chat
+        model = Message
         exclude = ['is_deleted',]
 
     def validate(self, attrs):

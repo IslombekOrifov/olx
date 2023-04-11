@@ -12,7 +12,6 @@ class MainComplaint(models.Model):
     created_date = models.DateField(auto_now_add=True)
     updated_date = models.DateField(auto_now=True)
 
-
     def save(self, *args, **kwargs):
         self.text = ' '.join(self.text.strip().split())
         super().save(*args, **kwargs)

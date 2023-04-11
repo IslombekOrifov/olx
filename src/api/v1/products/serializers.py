@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from rest_framework import (
     serializers,
     utils
@@ -30,6 +32,8 @@ class FieldAminSerializer(serializers.ModelSerializer):
 
 
 # start client serializers
+
+# category
 class CategoryChildsChildrenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -48,18 +52,20 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ('id', 'name', 'image', 'children')
+# end category
 
-
+# field
 class FieldSerializer(serializers.ModelSerializer):
     class Meta:
         model = Field
         fields = ['id', 'name', 'is_checkbox']
+# endfield 
 
-
-class ProductFieldSerializer(serializers.ModelSerializer):
+# product field
+class ProductFieldSerializer(serializers.ModelSerializer):    
     class Meta:
         model = ProductField
-        fields = ('id', 'field', 'product', 'text', 'is_true')
+        fields = ('custom_id', 'field', 'product', 'text', 'is_true')
 
 
 
@@ -89,6 +95,16 @@ class ProductFieldCreateSerializer(serializers.ModelSerializer):
 
         return instance
 
+
+class ProductFieldDetailSerializer(serializers.ModelSerializer):
+    field_title = serializers.StringRelatedField(source="field.name")
+    class Meta:
+        model = ProductField
+        fields = ('id', 'field', 'field_title', 'product', 'text', 'is_true')
+# end product field
+
+
+# product
 class ProductCreateUpdateSerializer(serializers.ModelSerializer):
     cat_fields = ProductFieldCreateSerializer(many=True)
     id = serializers.IntegerField()
@@ -108,6 +124,7 @@ class ProductCreateUpdateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         cat_fields = validated_data.pop('cat_fields')
+        validated_data['custom_id'] = str(uuid4())[-12:]
         product = Product.objects.create(**validated_data)
         if cat_fields:
             fields_gen = list((ProductField(product=product, **field) for field in cat_fields))
@@ -153,12 +170,6 @@ class ProductListSerializer(serializers.ModelSerializer):
         )
 
 
-class ProductFieldDetailSerializer(serializers.ModelSerializer):
-    field_title = serializers.StringRelatedField(source="field.name")
-    class Meta:
-        model = ProductField
-        fields = ('id', 'field', 'field_title', 'product', 'text', 'is_true')
-
 
 class ProductDetailSerializer(serializers.ModelSerializer):
     cat_fields = ProductFieldDetailSerializer(many=True)
@@ -172,8 +183,6 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             'image6', 'image7', 'email', 'phone', 'views_count', 'date_created',
             'cat_fields', 'author'
         )
-
-
-
+# end product
 
 # end client serializers
