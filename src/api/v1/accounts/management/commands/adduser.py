@@ -19,5 +19,5 @@ class Command(BaseCommand):
         for _ in range(i):
             # you can pass params explicitly
             CustomUser.objects.create_user(
-                username=f'aaa{_}', email=f'aaa{_}@gmail.com', password=f'aaa{_}'
+                username=f'user{_}', email=f'user{_}@gmail.com', password=f'userpass{_}'
             )
