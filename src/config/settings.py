@@ -33,7 +33,6 @@ INSTALLED_APPS = [
     'api.v1.products.apps.ProductsConfig',
     'api.v1.tariffs.apps.TariffsConfig',
     'api.v1.wishlist.apps.WishlistConfig',
-
     'rest_framework',
     'rest_framework_simplejwt',
 
@@ -42,6 +41,7 @@ INSTALLED_APPS = [
     'multiselectfield',
     'django_filters',
     'corsheaders',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [

@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
+from .yasg import urlpatterns as yasg_url
 
 
 urlpatterns = [
@@ -11,3 +12,5 @@ urlpatterns = [
     # debug toolbar
     path('__debug__/', include('debug_toolbar.urls')),
 ]
+
+urlpatterns += yasg_url
